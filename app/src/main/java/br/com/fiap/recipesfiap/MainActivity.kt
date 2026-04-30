@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import br.com.fiap.recipesfiap.navigation.NavigationRoutes
 import br.com.fiap.recipesfiap.screens.InitialScreen
 import br.com.fiap.recipesfiap.screens.LoginScreen
 import br.com.fiap.recipesfiap.screens.SignUpScreen
@@ -16,9 +17,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             RecipesFiapTheme {
-//                InitialScreen()
-//                SignUpScreen()
-                LoginScreen()
+                NavigationRoutes()
             }
         }
     }

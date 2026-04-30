@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.RemoveRedEye
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -26,18 +27,25 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import br.com.fiap.recipesfiap.R
+import br.com.fiap.recipesfiap.navigation.Destination
 import br.com.fiap.recipesfiap.ui.theme.RecipesFiapTheme
 
 @Composable
-fun SignUpScreen(modifier: Modifier = Modifier) {
+fun SignUpScreen(navController: NavHostController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -57,7 +65,7 @@ fun SignUpScreen(modifier: Modifier = Modifier) {
             TitleComponent()
             Spacer(modifier = Modifier.height(48.dp))
             UserImage()
-            SignUpUserForm()
+            SignUpUserForm(navController)
         }
 
     }
@@ -71,7 +79,7 @@ fun SignUpScreen(modifier: Modifier = Modifier) {
 @Composable
 private fun SignUpScreenPreview() {
     RecipesFiapTheme() {
-        SignUpScreen()
+        SignUpScreen(rememberNavController())
     }
 }
 
@@ -142,16 +150,27 @@ private fun UserImagePreview() {
 }
 
 @Composable
-fun SignUpUserForm(modifier: Modifier = Modifier) {
+fun SignUpUserForm(navController: NavController, modifier: Modifier = Modifier) {
+    var nameState = remember {
+        mutableStateOf("")
+    }
+    var emailState = remember {
+        mutableStateOf("")
+    }
+    var passwordState = remember {
+        mutableStateOf("")
+    }
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(32.dp)
     ) {
 
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = nameState.value,
+            onValueChange = {
+                nameState.value = it
+            },
             modifier = Modifier
                 .fillMaxWidth(),
             label = {
@@ -172,11 +191,17 @@ fun SignUpUserForm(modifier: Modifier = Modifier) {
                     contentDescription = stringResource(R.string.person_icon),
                     tint = MaterialTheme.colorScheme.tertiary
                 )
-            }
+            },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next
+            )
         )
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = emailState.value,
+            onValueChange = {
+                emailState.value = it
+            },
             modifier = Modifier
                 .fillMaxWidth(),
             label = {
@@ -197,11 +222,17 @@ fun SignUpUserForm(modifier: Modifier = Modifier) {
                     contentDescription = stringResource(R.string.email_icon),
                     tint = MaterialTheme.colorScheme.tertiary
                 )
-            }
+            },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Next
+            )
         )
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = passwordState.value,
+            onValueChange = {
+                passwordState.value = it
+            },
             modifier = Modifier
                 .fillMaxWidth(),
             label = {
@@ -229,13 +260,19 @@ fun SignUpUserForm(modifier: Modifier = Modifier) {
                     contentDescription = stringResource(R.string.remove_red_eye_icon),
                     tint = MaterialTheme.colorScheme.tertiary
                 )
-            }
+            },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Done
+            )
         )
         Spacer(
             modifier = Modifier.height(32.dp)
         )
         Button(
-            onClick = {},
+            onClick = {
+                navController.navigate(Destination.HomeScreen.createRoute(emailState.value))
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
@@ -255,6 +292,6 @@ fun SignUpUserForm(modifier: Modifier = Modifier) {
 @Composable
 private fun SignUpUserFormPreview() {
     RecipesFiapTheme() {
-        SignUpUserForm()
+        SignUpUserForm(rememberNavController())
     }
 }
