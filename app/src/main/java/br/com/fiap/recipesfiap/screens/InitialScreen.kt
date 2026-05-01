@@ -26,34 +26,31 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import br.com.fiap.recipesfiap.R
 import br.com.fiap.recipesfiap.navigation.Destination
 import br.com.fiap.recipesfiap.ui.theme.RecipesFiapTheme
+import br.com.fiap.recipesfiap.screens.BottomStartCard
+import br.com.fiap.recipesfiap.screens.TopEndCard
 
 @Composable
-fun InitialScreen(navController: NavController){
+fun InitialScreen(navController: NavController?) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                color = MaterialTheme.colorScheme.background
-            )
-    ){
-        TopEndCard(modifier = Modifier.align(Alignment.TopEnd))
-        BottomStartCard(modifier = Modifier.align(Alignment.BottomStart))
+            .background(color = MaterialTheme.colorScheme.background)
+    ) {
+        TopEndCard(Modifier.align(Alignment.TopEnd))
         Column(
             modifier = Modifier
-                .padding(all = 16.dp)
                 .fillMaxWidth()
+                .padding(horizontal = 48.dp, vertical = 16.dp)
                 .align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
                 painter = painterResource(R.drawable.cooking),
-                contentDescription = "Imagem de uma mulher cozinhando",
-                modifier = Modifier
-                    .size(190.dp)
+                contentDescription = "Image of someone cooking",
+                modifier = Modifier.size(190.dp)
             )
             Spacer(modifier = Modifier.height(100.dp))
             Column(
@@ -65,29 +62,33 @@ fun InitialScreen(navController: NavController){
                     color = MaterialTheme.colorScheme.secondary,
                     style = MaterialTheme.typography.titleSmall
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                // TEXTO START COOKING
                 Text(
                     text = stringResource(R.string.app_title),
-                    style = MaterialTheme.typography.displayLarge,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .padding(top = 8.dp, bottom = 16.dp)
+                    style = MaterialTheme.typography.displayLarge
                 )
+                Spacer(modifier = Modifier.height(16.dp))
                 Row {
+                    // Botão Login
                     Button(
                         onClick = {
-                            navController.navigate(Destination.LoginScreen.route)
+                            navController?.navigate(Destination.LoginScreen.route)
                         },
-                        colors = ButtonDefaults
-                            .buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary
-                            ),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme
+                                .colorScheme.primary
+                        ),
                         border = BorderStroke(
                             width = 1.dp,
-                            color = MaterialTheme.colorScheme.tertiary
+                            color = MaterialTheme
+                                .colorScheme.tertiary
                         ),
                         modifier = Modifier
-                            .size(width = 128.dp, height = 48.dp)
+                            .height(48.dp)
                     ) {
+                        // TEXTO DO BOTÃO DE LOGIN
                         Text(
                             text = stringResource(R.string.button_login),
                             color = MaterialTheme.colorScheme.onPrimary,
@@ -97,40 +98,40 @@ fun InitialScreen(navController: NavController){
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = {
-                            navController.navigate(Destination.SignUpScreen.route)
+                            navController?.navigate(Destination.SignupScreen.route)
                         },
-                        colors = ButtonDefaults
-                            .buttonColors(
-                                containerColor = MaterialTheme.colorScheme.tertiary
-                            ),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiary
+                        ),
                         border = BorderStroke(
                             width = 1.dp,
                             color = MaterialTheme.colorScheme.primary
                         ),
                         modifier = Modifier
-                            .width(128.dp)
-                            .height(48.dp)
+                            .height(height = 48.dp)
                     ) {
+                        // TEXTO DO BOTÃO SIGN UP
                         Text(
                             text = stringResource(R.string.button_signup),
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.onTertiary,
                             style = MaterialTheme.typography.labelMedium
                         )
                     }
                 }
             }
         }
+        BottomStartCard(Modifier.align(Alignment.BottomStart))
     }
 }
 
-@Composable
 @Preview(
     showBackground = true,
-    showSystemUi = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    locale = "en"
 )
+@Composable
 fun InitialScreenPreview() {
     RecipesFiapTheme {
-        InitialScreen(rememberNavController())
+        InitialScreen(null)
     }
 }

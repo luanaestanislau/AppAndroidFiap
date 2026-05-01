@@ -1,6 +1,5 @@
 package br.com.fiap.recipes.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,15 +23,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import br.com.fiap.recipes.repository.getAllRecipes
+import br.com.fiap.recipesfiap.factory.RetrofitClient
 import br.com.fiap.recipesfiap.model.Recipe
+import br.com.fiap.recipesfiap.repository.getAllRecipes
+//import br.com.fiap.recipes.repository.getAllRecipes
 import br.com.fiap.recipesfiap.ui.theme.RecipesFiapTheme
+
+// TRECHO DE CÓDIGO OMITIDO
+import coil.compose.AsyncImage
 
 @Composable
 fun RecipeItem(recipe: Recipe) {
+
+    // Obter a url base do backend
+    val baseUrl = RetrofitClient.BASE_URL.plus("recipes")
 
     Card(
         modifier = Modifier
@@ -43,11 +49,11 @@ fun RecipeItem(recipe: Recipe) {
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            Image(
-                painter = painterResource(recipe.image!!),
-                contentDescription = "",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+            AsyncImage(
+                model = baseUrl.plus(recipe.image),
+                contentDescription = recipe.name,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
             )
             Row(
                 modifier = Modifier
@@ -62,7 +68,7 @@ fun RecipeItem(recipe: Recipe) {
                     )
             ) {
                 Text(
-                    text = recipe.user.name,
+                    text = "",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.padding(top = 8.dp, start = 8.dp)
@@ -87,7 +93,7 @@ fun RecipeItem(recipe: Recipe) {
                     text = recipe.name,
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.padding(end = 8.dp)
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp)
                 )
                 Row(
                 ) {
@@ -113,7 +119,7 @@ fun RecipeItem(recipe: Recipe) {
 @Preview
 @Composable
 private fun RecipeItemPreview() {
-    RecipesFiapTheme() {
-        RecipeItem(getAllRecipes()[0])
+    RecipesFiapTheme {
+        RecipeItem(getAllRecipes()[2])
     }
 }

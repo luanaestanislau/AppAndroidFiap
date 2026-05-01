@@ -1,5 +1,7 @@
 package br.com.fiap.recipesfiap.screens
 
+import android.content.Context
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,14 +12,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.RemoveRedEye
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -28,51 +35,63 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.fiap.recipesfiap.R
 import br.com.fiap.recipesfiap.navigation.Destination
+import br.com.fiap.recipesfiap.repository.RoomUserRepository
+import br.com.fiap.recipesfiap.repository.SharedPreferencesUserRepository
+import br.com.fiap.recipesfiap.repository.UserRepository
 import br.com.fiap.recipesfiap.ui.theme.RecipesFiapTheme
 
 @Composable
-fun LoginScreen(navController: NavHostController) {
+fun LoginScreen(navController: NavController) {
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        TopEndCard(modifier = Modifier.align(alignment = Alignment.TopEnd))
-        BottomStartCard(modifier = Modifier.align(alignment = Alignment.BottomStart))
+        TopEndCard(modifier = Modifier.align(Alignment.TopEnd))
+        BottomStartCard(modifier = Modifier.align(Alignment.BottomStart))
+
         Column(
             modifier = Modifier
-                .padding(32.dp)
                 .fillMaxWidth()
-                .align(alignment = Alignment.Center),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .align(Alignment.Center),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             LoginTitle()
-            Spacer(modifier = Modifier.height(64.dp))
             LoginForm(navController)
         }
+
     }
 }
 
-@Preview(showBackground = true)
+@Preview(
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    locale = "en"
+)
 @Composable
 private fun LoginScreenPreview() {
-RecipesFiapTheme() {
-    LoginScreen(rememberNavController())
-}
+    RecipesFiapTheme {
+        //LoginScreen({})
+        //LoginScreen()
+    }
 }
 
+// *** Componente 1 - Título da tela ***
 @Composable
 fun LoginTitle(modifier: Modifier = Modifier) {
     Column(
@@ -80,7 +99,7 @@ fun LoginTitle(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.Start,
         modifier = Modifier
             .fillMaxWidth()
-
+            .padding(32.dp)
     ) {
         Text(
             text = stringResource(R.string.login),
@@ -95,23 +114,48 @@ fun LoginTitle(modifier: Modifier = Modifier) {
     }
 }
 
-@Preview
+@Preview(
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    locale = "en"
+)
 @Composable
 private fun LoginTitlePreview() {
-    RecipesFiapTheme() {
+    RecipesFiapTheme {
         LoginTitle()
     }
 }
 
+// *** Componente 2 - Formulário de Login do Usuário
 @Composable
 fun LoginForm(navController: NavController) {
+
+    val context = LocalContext.current
+
     var emailState = remember {
-        mutableStateOf("")
+        mutableStateOf("celso@fiap.com.br")
     }
     var passwordState = remember {
-        mutableStateOf("")
+        mutableStateOf("123")
     }
-    Column() {
+    var showPassword = remember {
+        mutableStateOf(false)
+    }
+    var authenticateError = remember {
+        mutableStateOf(false)
+    }
+
+    // Criar uma instância da classe SharedPreferencesUserRepository
+    // val userRepository: UserRepository = SharedPreferencesUserRepository(LocalContext.current)
+    // Criar uma instância da classe RoomUserRepository
+    val userRepository: UserRepository = RoomUserRepository(LocalContext.current)
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(32.dp)
+    ) {
+        // Caixa de texto your e-mail
         OutlinedTextField(
             value = emailState.value,
             onValueChange = { email ->
@@ -119,12 +163,13 @@ fun LoginForm(navController: NavController) {
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(4.dp),
+                .padding(bottom = 4.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-            ),
+            colors = OutlinedTextFieldDefaults
+                .colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.primary
+                ),
             label = {
                 Text(
                     text = stringResource(R.string.your_email),
@@ -134,7 +179,7 @@ fun LoginForm(navController: NavController) {
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Email,
-                    contentDescription = stringResource(R.string.email_icon),
+                    contentDescription = "",
                     tint = MaterialTheme.colorScheme.tertiary
                 )
             },
@@ -143,19 +188,20 @@ fun LoginForm(navController: NavController) {
                 imeAction = ImeAction.Next
             )
         )
+        // Caixa de texto your password
         OutlinedTextField(
             value = passwordState.value,
             onValueChange = { password ->
                 passwordState.value = password
             },
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(4.dp),
+                .fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-            ),
+            colors = OutlinedTextFieldDefaults
+                .colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.primary
+                ),
             label = {
                 Text(
                     text = stringResource(R.string.your_password),
@@ -165,26 +211,52 @@ fun LoginForm(navController: NavController) {
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Lock,
-                    contentDescription = stringResource(R.string.lock_icon),
+                    contentDescription = "",
                     tint = MaterialTheme.colorScheme.tertiary
                 )
             },
             trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.RemoveRedEye,
-                    contentDescription = stringResource(R.string.remove_red_eye_icon),
-                    tint = MaterialTheme.colorScheme.tertiary
-                )
+                val image = if (showPassword.value) {
+                    Icons.Default.Visibility
+                } else {
+                    Icons.Default.VisibilityOff
+                }
+                IconButton(
+                    onClick = {showPassword.value = !showPassword.value}
+                ) {
+                    Icon(
+                        imageVector = image,
+                        contentDescription = "",
+                        tint = MaterialTheme.colorScheme.tertiary
+                    )
+                }
             },
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
+                keyboardType = KeyboardType.NumberPassword,
                 imeAction = ImeAction.Done
-            )
+            ),
+            visualTransformation = if (showPassword.value) VisualTransformation.None
+            else PasswordVisualTransformation()
         )
+        // Botão Sign in
         Spacer(modifier = Modifier.height(32.dp))
         Button(
             onClick = {
-                navController.navigate(Destination.HomeScreen.createRoute(emailState.value))
+                val authenticate =
+                    userRepository.login(emailState.value, passwordState.value)
+                if (authenticate) {
+                    // Gravar dados do usuário no SharedPreferences
+                    val sharedPreferences = context
+                        .getSharedPreferences("user_data", Context.MODE_PRIVATE)
+                    sharedPreferences.edit()
+                        .putString("email", emailState.value)
+                        .apply()
+                    navController.navigate(
+                        Destination.HomeScreen.createRoute(emailState.value)
+                    )
+                } else {
+                    authenticateError.value = true
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -197,11 +269,25 @@ fun LoginForm(navController: NavController) {
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
+        if (authenticateError.value){
+            Row {
+                Icon(
+                    imageVector = Icons.Default.Error,
+                    contentDescription = "",
+                    tint = MaterialTheme.colorScheme.error
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.authentication_error),
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.End
+            horizontalArrangement = Arrangement.Absolute.Right
         ) {
             Text(
                 text = stringResource(R.string.dont_have_an_account),
@@ -210,13 +296,12 @@ fun LoginForm(navController: NavController) {
             )
             TextButton(
                 onClick = {
-                    navController.navigate(Destination.SignUpScreen.route)
+                    navController.navigate(Destination.SignupScreen.route)
                 }
             ) {
                 Text(
                     text = stringResource(R.string.sign_up),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -225,11 +310,13 @@ fun LoginForm(navController: NavController) {
 }
 
 @Preview(
-    showBackground = true
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    locale = "en"
 )
 @Composable
 private fun LoginFormPreview() {
-    RecipesFiapTheme() {
+    RecipesFiapTheme {
         LoginForm(rememberNavController())
     }
 }

@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.RemoveRedEye
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -66,14 +67,14 @@ import br.com.fiap.recipesfiap.R
 import br.com.fiap.recipesfiap.model.User
 import br.com.fiap.recipesfiap.navigation.Destination
 import br.com.fiap.recipesfiap.repository.RoomUserRepository
-import br.com.fiap.recipesfiap.repository.SharedPreferencesUserRepository
-import br.com.fiap.recipesfiap.repository.UserRepository
-import br.com.fiap.recipesfiap.ui.theme.RecipesFiapTheme
+import br.com.fiap.recipesfiap.screens.BottomStartCard
+import br.com.fiap.recipesfiap.screens.TopEndCard
 import br.com.fiap.recipesfiap.utils.convertBitmapToByteArray
+import br.com.fiap.recipesfiap.ui.theme.RecipesFiapTheme
 
 // *** Tela SignupScreen ***
 @Composable
-fun SignupScreen(navController: NavHostController?) {
+fun ProfileScreen(navController: NavHostController?, email: String) {
 
     val context = LocalContext.current
 
@@ -128,14 +129,14 @@ fun SignupScreen(navController: NavHostController?) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TitleComponent()
+            ProfileTitleComponent()
             Spacer(modifier = Modifier.height(48.dp))
 
             UserImage(
                 profileImage = profileImage,
                 launchImage = launchImage
             )
-            SignupUserForm(navController, profileImage)
+            ProfileUserForm(navController, profileImage, email)
         }
     }
 }
@@ -146,26 +147,26 @@ fun SignupScreen(navController: NavHostController?) {
     locale = "en"
 )
 @Composable
-private fun SignupScreenPreview() {
+private fun ProfileScreenPreview() {
     RecipesFiapTheme {
-        SignupScreen(null)
+        ProfileScreen(null, "")
     }
 }
 
 // *** Componente 1 - Título da tela ***
 @Composable
-fun TitleComponent(modifier: Modifier = Modifier) {
+fun ProfileTitleComponent(modifier: Modifier = Modifier) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = stringResource(R.string.sign_up),
+            text = stringResource(R.string.profile),
             color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleLarge
         )
         Text(
-            text = stringResource(R.string.signup_subtitle),
+            text = stringResource(R.string.user_profile_details),
             color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleSmall
         )
@@ -178,17 +179,17 @@ fun TitleComponent(modifier: Modifier = Modifier) {
     locale = "en"
 )
 @Composable
-private fun TitleComponentPreview() {
+private fun ProfileTitleComponentPreview() {
     RecipesFiapTheme {
-        TitleComponent()
+        ProfileTitleComponent()
     }
 
 }
-
-// TRECHO DE CÓDIGO FONTE OMITIDO...
-// *** Componente 2 - Imagem do usuário
+//
+//// TRECHO DE CÓDIGO FONTE OMITIDO...
+//// *** Componente 2 - Imagem do usuário
 @Composable
-fun UserImage(
+fun ProfileUserImage(
     profileImage: Bitmap?,
     launchImage: ManagedActivityResultLauncher<String, Uri?>
 ) {
@@ -224,7 +225,7 @@ fun UserImage(
     locale = "en"
 )
 @Composable
-private fun UserImagePreview() {
+private fun ProfileUserImagePreview() {
     RecipesFiapTheme {
         // UserImage(null, onProfileImageChange = {})
     }
@@ -233,16 +234,24 @@ private fun UserImagePreview() {
 // TRECHO DE CÓDIGO FONTE OMITIDO...
 // *** Componente 3 - Formulário do Usuário
 @Composable
-fun SignupUserForm(
+fun ProfileUserForm(
     navController: NavHostController?,
-    profileImage: Bitmap?
+    profileImage: Bitmap?,
+    email: String = ""
 ) {
+
+    // Criar uma instância da classe SharedPreferencesUserRepository
+    //val userRepository: UserRepository = SharedPreferencesUserRepository(LocalContext.current)
+    val userRepository = RoomUserRepository(LocalContext.current)
+
+    // Carregando os dados do usuário
+    var user = userRepository.getUserByEmail(email)
 
     // Variáveis de estado para controlar
     // os valores exibidos nos OutlinedTextFields
-    var name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf(user!!.name) }
+    var email by remember { mutableStateOf(user!!.email) }
+    var password by remember { mutableStateOf(user!!.password) }
 
     // Variáveis de estado para controlar
     // se os dados estão corretos
@@ -258,6 +267,10 @@ fun SignupUserForm(
     // da caixa de diálogo de confirmação de cadastro
     var showDialogSuccess by remember { mutableStateOf(false) }
 
+    // Variável de estado que controla a exibição
+    // da caixa de diálogo de confirmação de exclusão
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
     // Função de validação dos dados digitados
     fun validate(): Boolean {
         isNameError = name.length < 3
@@ -265,10 +278,6 @@ fun SignupUserForm(
         isPasswordError = password.length < 3
         return !isNameError && !isEmailError && !isPasswordError
     }
-
-    // Criar uma instância da classe SharedPreferencesUserRepository
-    //val userRepository: UserRepository = SharedPreferencesUserRepository(LocalContext.current)
-    val userRepository = RoomUserRepository(LocalContext.current)
 
     Column(
         modifier = Modifier
@@ -428,31 +437,26 @@ fun SignupUserForm(
                 }
             }
         )
-        // Botão Create account
-        Spacer(modifier = Modifier.height(32.dp))
+        // Botão Update profile
+        Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
                 if (validate()) {
-                    // Criação de um objeto User
-                    val user = User(
+                    // Atualização do objeto User
+                    user = User(
+                        id = user!!.id,
                         name = name,
                         email = email,
                         password = password,
                         userImage = convertBitmapToByteArray(profileImage!!)
                     )
                     try {
-                        userRepository.saveUser(user)
+                        userRepository.updateUser(user)
                         showDialogSuccess = true
                     } catch (e: SQLiteConstraintException){
                         isEmailError = true
                         showDialogError = "Error"
                     }
-
-                    //userRepository
-                    //    .saveUser(User(name = name, email = email, password = password))
-                    // Abrir o dialog informando que o
-                    // cadastro ocorreu com sucesso
-//                    showDialogSuccess = true
                 } else {
                     showDialogError = "Error"
                 }
@@ -463,10 +467,65 @@ fun SignupUserForm(
             shape = RoundedCornerShape(8.dp),
         ) {
             Text(
-                text = stringResource(R.string.create_account),
+                text = stringResource(R.string.update_profile),
                 style = MaterialTheme.typography.labelMedium
             )
         }
+        // Botão Delete profile
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {
+                showDeleteDialog = true
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.tertiary
+            )
+        ) {
+            Text(
+                text = "Delete profile",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onTertiary
+            )
+        }
+    }
+
+    // Mostra a mensagem para confirmar exclusão
+    if (showDeleteDialog != false) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = {
+                Text(
+                    text = stringResource(R.string.delete_user)
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.removal_confirmation)
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                    if (user != null){
+                        userRepository.deleteUser(user)
+                        navController!!.navigate(Destination.LoginScreen.route)
+                    }
+                }) {
+                    Text(text = stringResource(R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                }) {
+                    Text(text = stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 
     // Mostra a mensagem de cadastro efetuado com sucesso
@@ -512,8 +571,8 @@ fun SignupUserForm(
     locale = "en"
 )
 @Composable
-private fun SignupUserFormPreview() {
+private fun ProfileUserFormPreview() {
     RecipesFiapTheme {
-        SignupUserForm(null, null)
+        ProfileUserForm(null, null, "")
     }
 }

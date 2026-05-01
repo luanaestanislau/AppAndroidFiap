@@ -1,6 +1,5 @@
 package br.com.fiap.recipesfiap.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,36 +34,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import br.com.fiap.recipes.repository.getAllRecipes
-import androidx.navigation.compose.rememberNavController
-import br.com.fiap.recipes.repository.getCategoryById
-import br.com.fiap.recipes.repository.getRecipesByCategory
 import br.com.fiap.recipesfiap.R
+import br.com.fiap.recipesfiap.factory.RetrofitClient
 import br.com.fiap.recipesfiap.model.Recipe
 import br.com.fiap.recipesfiap.navigation.Destination
+//import br.com.fiap.recipes.repository.getCategoryById
+import br.com.fiap.recipesfiap.repository.getAllRecipes
+import br.com.fiap.recipesfiap.repository.getRecipesByCategory
 import br.com.fiap.recipesfiap.ui.theme.RecipesFiapTheme
+import coil.compose.AsyncImage
 
 @Composable
 fun CategoryRecipeScreen(categoryId: Int?, navController: NavHostController?) {
 
-    val recipesByCategory = if (categoryId != null) getRecipesByCategory(id = categoryId) else emptyList()
+    val recipesByCategory = getRecipesByCategory(
+        id = categoryId!!
+    )
 
     var categoryName = ""
 
-    if (categoryId != null) {
-        val categoryList = getCategoryById(categoryId)
-        if (recipesByCategory.isNotEmpty()) {
+    when (recipesByCategory.size) {
+        0 -> {
+            categoryName = ""
+        }
+        else -> {
             categoryName = recipesByCategory[0].category.name
-        } else if (categoryList.isNotEmpty()) {
-            categoryName = categoryList[0].name
-        } else {
-            categoryName = "Category"
         }
     }
 
@@ -86,7 +85,10 @@ fun CategoryRecipeScreen(categoryId: Int?, navController: NavHostController?) {
             ) {
                 IconButton(
                     onClick = {
-                        navController?.popBackStack()
+                        println("navega...")
+                        navController!!.navigate(
+                            route = Destination.HomeScreen.createRoute("")
+                        )
                     },
                 ) {
                     Icon(
@@ -172,6 +174,9 @@ fun CategoryRecipeScreen(categoryId: Int?, navController: NavHostController?) {
 
 @Composable
 fun CategoryRecipe(recipe: Recipe) {
+
+    val baseUrl = RetrofitClient.BASE_URL.plus("recipes")
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -186,9 +191,10 @@ fun CategoryRecipe(recipe: Recipe) {
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            Image(
-                painter = painterResource(recipe.image!!),
-                contentDescription = "",
+            // Substituímos Image por AsyncImage
+            AsyncImage(
+                model = baseUrl.plus(recipe.image),
+                contentDescription = recipe.name,
                 modifier = Modifier.weight(1f),
                 contentScale = ContentScale.Crop
             )
@@ -230,7 +236,7 @@ fun CategoryRecipe(recipe: Recipe) {
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = recipe.difficultLevel.value,
+                            text = recipe.difficultLevel.description,
                             style = MaterialTheme.typography.labelSmall
                         )
                     }
@@ -269,7 +275,6 @@ private fun CategoryRecipePreview() {
 @Composable
 private fun CategoryRecipeScreenPreview() {
     RecipesFiapTheme {
-        // Passando ID 1 para que o preview tenha dados para renderizar
-        CategoryRecipeScreen(1, rememberNavController())
+        CategoryRecipeScreen(null, null)
     }
 }

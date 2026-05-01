@@ -1,0 +1,10 @@
+{
+  "title": "Título da Receita",
+  "difficultLevel": "INTERMEDIATE",
+  "description": "Descrição da receita.",
+  "cookingTime": 90,
+  "category": {
+    "categoryId": 1
+  },
+  "creationDate":"YYYY-MM-DD"
+}

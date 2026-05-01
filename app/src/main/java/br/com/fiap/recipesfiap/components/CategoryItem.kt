@@ -1,6 +1,5 @@
-package br.com.fiap.recipesfiap.components
+package br.com.fiap.recipes.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,35 +15,36 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import br.com.fiap.recipesfiap.R
+import br.com.fiap.recipesfiap.factory.RetrofitClient
 import br.com.fiap.recipesfiap.model.Category
 import br.com.fiap.recipesfiap.ui.theme.RecipesFiapTheme
+import coil.compose.AsyncImage
 
+// TRECHO DE CÓDIGO OMITIDO
 @Composable
 fun CategoryItem(
     category: Category = Category(),
     onClick: () -> Unit
 ) {
-    Column (
+
+    val baseUrl = RetrofitClient.BASE_URL.plus("recipes")
+
+    Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .width(90.dp)
-            .clickable(
-                onClick = {
-                    onClick()
-                }
-            )
-    ){
+            .clickable(onClick = { onClick() }),
+    ) {
         Card(
             modifier = Modifier
                 .padding(bottom = 4.dp)
                 .size(90.dp),
             shape = CircleShape,
             colors = CardDefaults.cardColors(
-                containerColor = category.background
+                containerColor = Color(category.background.toLong(16))
             )
         ) {
             Box(
@@ -52,11 +52,10 @@ fun CategoryItem(
                     .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(category.image!!),
+                AsyncImage(
+                    model = baseUrl.plus(category.image),
                     contentDescription = category.name,
-                    modifier = Modifier
-                        .size(45.dp)
+                    modifier = Modifier.size(45.dp)
                 )
             }
         }
@@ -66,14 +65,13 @@ fun CategoryItem(
             color = MaterialTheme.colorScheme.secondary
         )
     }
+
 }
 
-@Preview(
-    showBackground = true
-)
+@Preview
 @Composable
 private fun CategoryItemPreview() {
-    RecipesFiapTheme() {
+    RecipesFiapTheme {
         CategoryItem(onClick = {})
     }
 }

@@ -1,12 +1,15 @@
 package br.com.fiap.recipesfiap.screens
 
+import android.content.Context
+import android.content.res.Configuration
+import android.graphics.Bitmap
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,6 +31,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -38,101 +42,281 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import br.com.fiap.recipes.components.RecipeItem
-import br.com.fiap.recipes.repository.getAllCategories
-import br.com.fiap.recipes.repository.getAllRecipes
+import androidx.navigation.NavController
+import br.com.fiap.recipes.components.CategoryItem
 import br.com.fiap.recipesfiap.R
-import br.com.fiap.recipesfiap.components.CategoryItem
+import br.com.fiap.recipes.components.RecipeItem
+import br.com.fiap.recipesfiap.factory.RetrofitClient
+import br.com.fiap.recipesfiap.model.Category
+import br.com.fiap.recipesfiap.model.DifficultLevel
+import br.com.fiap.recipesfiap.model.Recipe
+import br.com.fiap.recipesfiap.model.RecipeRequest
+import br.com.fiap.recipesfiap.model.User
+import br.com.fiap.recipesfiap.navigation.Destination
+import br.com.fiap.recipesfiap.repository.RoomUserRepository
+import br.com.fiap.recipesfiap.repository.UserRepository
+import br.com.fiap.recipes.repository.getAllCategories
+//import br.com.fiap.recipesfiap.repository.getAllCategories
+import br.com.fiap.recipesfiap.repository.getLatestRecipes
 import br.com.fiap.recipesfiap.ui.theme.RecipesFiapTheme
+import br.com.fiap.recipesfiap.utils.convertByteArrayToBitmap
+import com.google.gson.Gson
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.time.LocalDate
 
 @Composable
-fun HomeScreen(navController: NavHostController, email: String?) {
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
+fun HomeScreen(email: String, navController: NavController) {
+    Surface(modifier = Modifier.fillMaxSize()) {
         Scaffold(
-            topBar = { MyTopAppBar(email = email ?: "") },
-            bottomBar = { MyBottomAppBar() },
+            topBar = {
+                MyTopAppBar(email, navController)
+            },
+            bottomBar = {
+                MyBottomAppBar()
+            },
             floatingActionButton = {
                 FloatingActionButton(
-                    onClick = {},
+                    onClick = {
+                        navController.navigate(Destination.AddRecipeScreen.route)
+                    },
                     shape = CircleShape,
                     containerColor = MaterialTheme.colorScheme.primary
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(R.string.add_button_icon)
+                        contentDescription = "",
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
         ) { paddingValues ->
-           ContentScreen(modifier = Modifier.padding(paddingValues))
+            ContentScreen(
+                modifier = Modifier.padding(paddingValues),
+                navController = navController
+            )
         }
     }
 }
 
-@Preview
+@Preview(
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    locale = "en"
+)
 @Composable
 private fun HomeScreenPreview() {
     RecipesFiapTheme() {
-        HomeScreen(rememberNavController(), "")
+        //HomeScreen("")
     }
 }
 
+// TRECHO DE CÓDIGO OMITIDO
+// *** Conteúdo da Tela
+@Composable
+fun ContentScreen(
+    modifier: Modifier = Modifier,
+    navController: NavController
+) {
+    // Carrega a lista de categorias do repositório
+    var categories = getAllCategories()
+    val latestRecipes = getLatestRecipes()
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 0.dp) // modificado
+    ) {
+        OutlinedTextField(
+            value = "",
+            onValueChange = {},
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp), //modificado
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults
+                .colors(
+                    unfocusedBorderColor = Color.Transparent,
+                    unfocusedContainerColor = Color(0xFFF5F5F5),
+                    focusedContainerColor = Color.LightGray,
+                ),
+            trailingIcon = {
+                IconButton(
+                    onClick = {}
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = ""
+                    )
+                }
+            },
+            placeholder = {
+                Text(text = stringResource(R.string.search_by_recipes))
+            }
+        )
+        //Spacer(modifier = Modifier.height(16.dp))
+        Card(
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 8.dp) // modificado
+                .fillMaxWidth()
+                .height(112.dp)
+        ) {
+            Image(
+                painter = painterResource(R.drawable.cooking_card),
+                contentDescription = "",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        }
+        Text(
+            text = "Categories",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp) // modificado
+        )
+        //Spacer(modifier = Modifier.height(16.dp))
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            items(categories) { category ->
+                CategoryItem(
+                    category = category,
+                    onClick = {
+                        navController.navigate(
+                            route = Destination
+                                .CategoryRecipeScreen
+                                .createRoute(id = category.id)
+                        )
+                    }
+                )
+            }
+        }
+        //Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Newly added recipes",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+        LazyColumn(
+            contentPadding = PaddingValues(
+                vertical = 16.dp,
+                horizontal = 16.dp
+            ),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(latestRecipes) { recipe ->
+                RecipeItem(recipe)
+            }
+        }
+    }
+}
+
+@Preview(
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    locale = "en"
+)
+@Composable
+private fun ContentScreenPreview() {
+    RecipesFiapTheme {
+        //ContentScreen()
+    }
+}
+
+// TRECHO DE CÓDIGO OMITIDO...
+// *** TopAppBar ***
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyTopAppBar(email: String = "") {
+fun MyTopAppBar(email: String, navController: NavController) {
+
+    // Criar uma instância da classe SharedPreferencesUserRepository
+    val userRepository: UserRepository = RoomUserRepository(LocalContext.current)
+
+    // Lendo o arquivo "user_data" no SharedPreferences
+    val sharedPreferences = LocalContext.current
+        .getSharedPreferences("user_data", Context.MODE_PRIVATE)
+
+    val email = sharedPreferences.getString("email", "")!!
+
+    val user = userRepository.getUserByEmail(email)
+
+    // variáveis de estado para exibir a imagem do usuário
+    var bitmap by remember {
+        mutableStateOf<Bitmap?>(
+            convertByteArrayToBitmap(user!!.userImage!!)
+        )
+    }
+
     TopAppBar(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(0.dp),
         title = {
             Row(
                 modifier = Modifier
-                    .padding(4.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(end = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column() {
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
                     Text(
-                        text = "Hello, João",
+                        text = user!!.name,
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = email,
-                        style = MaterialTheme.typography.displaySmall,
-                        color = MaterialTheme.colorScheme.primary
+                        text = user.email,
+                        style = MaterialTheme.typography.displaySmall
                     )
                 }
                 Card(
-                    modifier = Modifier.size(48.dp),
                     shape = CircleShape,
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color.Transparent
-                    ),
+                    colors = CardDefaults
+                        .cardColors(
+                            containerColor = Color.Transparent
+                        ),
                     border = BorderStroke(
                         width = 1.dp,
                         color = MaterialTheme.colorScheme.primary
-                    )
+                    ),
+                    modifier = Modifier.size(48.dp)
+                        .clickable(
+                            onClick = { navController.navigate("profile/${user!!.email}")}
+                        )
                 ) {
                     Image(
-                        painter = painterResource(R.drawable.user),
-                        contentDescription = stringResource(R.string.user_image),
+                        //painter = painterResource(R.drawable.user),
+                        bitmap = bitmap!!.asImageBitmap(),
+                        contentDescription = "",
+                        alignment = Alignment.Center,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
             }
@@ -140,14 +324,20 @@ fun MyTopAppBar(email: String = "") {
     )
 }
 
-@Preview
+@Preview(
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    locale = "en"
+)
 @Composable
 private fun MyTopAppBarPreview() {
-    RecipesFiapTheme() {
-        MyTopAppBar()
+    RecipesFiapTheme {
+        //MyTopAppBar("", navController = navController)
     }
 }
 
+// TRECHO DE CÓDIGO OMITIDO...
+// *** BottomAppBar
 data class BottomNavigationItem(
     val title: String,
     val icon: ImageVector
@@ -157,10 +347,9 @@ data class BottomNavigationItem(
 fun MyBottomAppBar(modifier: Modifier = Modifier) {
     val items = listOf(
         BottomNavigationItem(title = "Home", icon = Icons.Default.Home),
-        BottomNavigationItem(title = "Favorites", icon = Icons.Default.Favorite),
-        BottomNavigationItem(title = "Profile", icon = Icons.Default.Person),
+        BottomNavigationItem("Favorites", Icons.Default.Favorite),
+        BottomNavigationItem("Profile", Icons.Default.Person)
     )
-
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.tertiary
     ) {
@@ -171,7 +360,7 @@ fun MyBottomAppBar(modifier: Modifier = Modifier) {
                 icon = {
                     Icon(
                         imageVector = item.icon,
-                        contentDescription = "${item.title} Icon",
+                        contentDescription = item.title,
                         tint = MaterialTheme.colorScheme.onTertiary,
                         modifier = Modifier.size(24.dp)
                     )
@@ -188,109 +377,14 @@ fun MyBottomAppBar(modifier: Modifier = Modifier) {
     }
 }
 
-@Preview
-@Composable
-private fun MyBottomAppBarPreview() {
-    RecipesFiapTheme() {
-        MyBottomAppBar()
-    }
-}
-
-@Composable
-fun ContentScreen(modifier: Modifier = Modifier) {
-    val categories = getAllCategories()
-    val recipes = getAllRecipes()
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(0.dp)
-    ) {
-        OutlinedTextField(
-            value = "",
-            onValueChange = {},
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = OutlinedTextFieldDefaults
-                .colors(
-                    unfocusedBorderColor = Color.Transparent,
-                    focusedContainerColor = Color.LightGray,
-                ),
-            label = {
-                Text(
-                    text = stringResource(R.string.search_description),
-                    style = MaterialTheme.typography.labelSmall
-                )
-            },
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = stringResource(R.string.search_icon),
-                )
-            }
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        Card(
-            modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .fillMaxWidth()
-                .height(116.dp)
-        ) {
-            Image(
-                painter = painterResource(R.drawable.cooking_card),
-                contentDescription = "Cooking",
-                modifier = Modifier
-                    .fillMaxWidth(),
-                contentScale = ContentScale.Crop
-            )
-        }
-        Text(
-            modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            text = stringResource(R.string.categories),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(categories){
-                category -> CategoryItem(
-                category,
-                onClick = TODO()
-            )
-            }
-        }
-        Text(
-            text = stringResource(R.string.nearly_added_recipes),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-        )
-        LazyColumn(
-            contentPadding = PaddingValues(
-                vertical = 8.dp,
-                horizontal = 16.dp
-            ),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(recipes) { recipe ->
-                RecipeItem(recipe)
-            }
-        }
-    }
-}
-
 @Preview(
-    showBackground = true
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    locale = "en"
 )
 @Composable
-private fun ContentScreenPreview() {
-    RecipesFiapTheme() {
-        ContentScreen()
+private fun MyBottomAppBarPreview() {
+    RecipesFiapTheme {
+        MyBottomAppBar()
     }
 }
