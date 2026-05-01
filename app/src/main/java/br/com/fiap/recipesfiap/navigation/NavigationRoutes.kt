@@ -1,146 +1,75 @@
 package br.com.fiap.recipesfiap.navigation
 
-import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.navigation.navDeepLink
-import br.com.fiap.recipes.screens.AddRecipeScreen
-import br.com.fiap.recipesfiap.screens.AddPreparationMethodsScreen
-import br.com.fiap.recipesfiap.screens.AddRecipeIngredientsScreen
-import br.com.fiap.recipesfiap.screens.AddRecipePhoto
-import br.com.fiap.recipesfiap.screens.CategoryRecipeScreen
-import br.com.fiap.recipesfiap.screens.HomeScreen
-import br.com.fiap.recipesfiap.screens.InitialScreen
-import br.com.fiap.recipesfiap.screens.LoginScreen
-import br.com.fiap.recipesfiap.screens.ProfileScreen
-import br.com.fiap.recipesfiap.screens.SignupScreen
-import br.com.fiap.recipesfiap.screens.CategoryRecipeScreen
+import br.com.fiap.recipesfiap.screens.AlertasScreen
+import br.com.fiap.recipesfiap.screens.CreditsScreen
+import br.com.fiap.recipesfiap.screens.DashboardScreen
+import br.com.fiap.recipesfiap.screens.EstoqueScreen
+import br.com.fiap.recipesfiap.screens.FunctionalDataScreen
+import br.com.fiap.recipesfiap.screens.InstitutionalLoginScreen
+import br.com.fiap.recipesfiap.screens.LogisticaScreen
+import br.com.fiap.recipesfiap.screens.PedidoScreen
+import br.com.fiap.recipesfiap.screens.PrevisaoIAScreen
+import br.com.fiap.recipesfiap.screens.SplashScreen
 
 @Composable
 fun NavigationRoutes() {
-    val navController = rememberNavController();
+    val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = Destination.InitialScreen.route
+        startDestination = Destination.SplashScreen.route
     ) {
-        composable(Destination.InitialScreen.route) { InitialScreen(navController) }
-        composable(
-            route = Destination.HomeScreen.route,
-            deepLinks = listOf(
-                navDeepLink {
-                    uriPattern = "https://recipes.fiap.com.br/email/{email}"
-                    action = Intent.ACTION_VIEW
-                }
-            ),
-            arguments = listOf(
-                navArgument("email") {
-                    type = NavType.StringType
-                }
-            )
-        ) { backStackEntry ->
-            var email = backStackEntry.arguments?.getString("email")
-            HomeScreen(
-                email!!,
-                navController
-            )
+        composable(Destination.SplashScreen.route) {
+            SplashScreen(navController)
         }
 
-        composable(
-            route = Destination.CategoryRecipeScreen.route,
-            arguments = listOf(
-                navArgument(name = "id") {
-                    type = NavType.IntType
-                }
-            )
-        ) { backStackEntry ->
-            var categoryId = backStackEntry.arguments?.getInt("id")
-            CategoryRecipeScreen(
-                categoryId,
-                navController
-            )
-        }
-
-        composable(Destination.SignupScreen.route) {
-            SignupScreen(navController)
-        }
-        composable(
-            route = Destination.ProfileScreen.route,
-            arguments = listOf(
-                navArgument(name = "email") {
-                    type = NavType.StringType
-                }
-            )) { backStackEntry ->
-            var email = backStackEntry.arguments?.getString("email")
-            ProfileScreen(
-                navController,
-                email!!
-            )
-        }
         composable(Destination.LoginScreen.route) {
-            LoginScreen(navController)
-        }
-
-        composable(Destination.AddRecipeScreen.route) {
-            AddRecipeScreen(
-                navController
-            )
+            InstitutionalLoginScreen(navController)
         }
 
         composable(
-            route = Destination.AddRecipeIngredientsScreen.route,
-            arguments = listOf(
-                navArgument(
-                    name = "recipeId"
-                ) { type = NavType.IntType },
-                navArgument(
-                    name = "recipeName"
-                ) { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            var recipeId = backStackEntry.arguments?.getInt("recipeId")
-            var recipeName = backStackEntry.arguments?.getString("recipeName")
-            AddRecipeIngredientsScreen(
-                navController,
-                recipeId,
-                recipeName
-            )
+            route = Destination.FunctionalDataScreen.route,
+            arguments = listOf(navArgument("email") { type = NavType.StringType })
+        ) { backStack ->
+            val email = backStack.arguments?.getString("email") ?: ""
+            FunctionalDataScreen(navController, email)
         }
 
-        // Adicionar a rota para a tela de modos de preparo
         composable(
-            route = Destination.AddPreparationMethodsScreen.route,
-            arguments = listOf(
-                navArgument(
-                    name = "recipeId"
-                ) { type = NavType.IntType },
-                navArgument(
-                    name = "recipeName"
-                ) { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            var recipeId = backStackEntry.arguments?.getInt("recipeId")
-            var recipeName = backStackEntry.arguments?.getString("recipeName")
-            AddPreparationMethodsScreen(
-                navController,
-                recipeId,
-                recipeName
-            )
+            route = Destination.DashboardScreen.route,
+            arguments = listOf(navArgument("email") { type = NavType.StringType })
+        ) { backStack ->
+            val email = backStack.arguments?.getString("email") ?: ""
+            DashboardScreen(navController, email)
         }
-        // Rota para a tela de cadastro de imagem da receita
-        composable(
-            route = Destination.AddRecipePhoto.route,
-            arguments = listOf(
-                navArgument(
-                    name = "recipeId"
-                ) { type = NavType.IntType },
-            )
-        ) { backStackEntry ->
-            var recipeId = backStackEntry.arguments?.getInt("recipeId")
-            AddRecipePhoto(recipeId!!, navController)
+
+        composable(Destination.EstoqueScreen.route) {
+            EstoqueScreen(navController)
+        }
+
+        composable(Destination.AlertasScreen.route) {
+            AlertasScreen(navController)
+        }
+
+        composable(Destination.LogisticaScreen.route) {
+            LogisticaScreen(navController)
+        }
+
+        composable(Destination.PrevisaoIAScreen.route) {
+            PrevisaoIAScreen(navController)
+        }
+
+        composable(Destination.PedidoScreen.route) {
+            PedidoScreen(navController)
+        }
+
+        composable(Destination.CreditsScreen.route) {
+            CreditsScreen(navController)
         }
     }
 }

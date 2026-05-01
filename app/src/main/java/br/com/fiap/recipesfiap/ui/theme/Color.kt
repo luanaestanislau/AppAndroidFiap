@@ -2,34 +2,44 @@ package br.com.fiap.recipesfiap.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// MediStock — Paleta Principal (tema escuro hospitalar)
+val MediBackground = Color(0xFF1A1A2E)
+val MediSurface = Color(0xFF252540)
+val MediCardBg = Color(0xFF2D2D48)
+val MediPrimary = Color(0xFF7B68EE)
+val MediPrimaryDark = Color(0xFF5A4FCF)
+val MediOnPrimary = Color(0xFFFFFFFF)
+val MediSecondary = Color(0xFF45B7D1)
+val MediOnSecondary = Color(0xFF000000)
+val MediTertiary = Color(0xFF4ECDC4)
+val MediOnTertiary = Color(0xFF000000)
+val MediOnBackground = Color(0xFFFFFFFF)
+val MediOnSurface = Color(0xFFE0E0F0)
+val MediSubtext = Color(0xFF9E9EAD)
+val MediSuccess = Color(0xFF4CAF50)
+val MediError = Color(0xFFF44336)
+val MediWarning = Color(0xFFFF9800)
+val MediBlue = Color(0xFF2196F3)
+val MediIconBg = Color(0xFF352F6E)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
-
-// CORES DO TEMA CLARO
-val LightPrimary = Color(0xFFED1459)
-val LightSecondary = Color(0xFF808080)
-val LightBackground = Color(0xFFFFFFFF)
-val LightSurface = Color(0xFFFFFFFF)
-val LightOnPrimary = Color(0xFFFFFFFF)
-val LightOnSecondary = Color(0xFFFFFFFF)
-val LightOnBackground = Color(0xFF000000)
-val LightOnSurface = Color(0xFF000000)
-val LightTertiary = Color(0xFFFFD740)
-val LightOnTertiary = Color(0xFF000000)
-
-// CORES DO TEMA ESCURO
-val DarkPrimary = Color(0xFFE78EAA)
-val DarkSecondary = Color(0xFFBDBDBD)
-val DarkBackground = Color(0xFF232323)
-val DarkSurface = Color(0xFF333333)
-val DarkOnPrimary = Color(0xFFFFFFFF)
-val DarkOnSecondary = Color(0xFF000000)
-val DarkOnBackground = Color(0xFFFFFFFF)
-val DarkOnSurface = Color(0xFFFFFFFF)
-val DarkTertiary = Color(0xFFF0AD4E)
-val DarkOnTertiary = Color(0xFF000000)
+// Cores auxiliares mantidas para compatibilidade
+val LightPrimary = MediPrimary
+val LightSecondary = MediSecondary
+val LightBackground = MediBackground
+val LightSurface = MediSurface
+val LightOnPrimary = MediOnPrimary
+val LightOnSecondary = MediOnSecondary
+val LightOnBackground = MediOnBackground
+val LightOnSurface = MediOnSurface
+val LightTertiary = MediTertiary
+val LightOnTertiary = MediOnTertiary
+val DarkPrimary = MediPrimary
+val DarkSecondary = MediSecondary
+val DarkBackground = MediBackground
+val DarkSurface = MediSurface
+val DarkOnPrimary = MediOnPrimary
+val DarkOnSecondary = MediOnSecondary
+val DarkOnBackground = MediOnBackground
+val DarkOnSurface = MediOnSurface
+val DarkTertiary = MediTertiary
+val DarkOnTertiary = MediOnTertiary

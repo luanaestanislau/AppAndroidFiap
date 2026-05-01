@@ -1,69 +1,41 @@
 package br.com.fiap.recipesfiap.navigation
 
 sealed class Destination(val route: String) {
+    object SplashScreen : Destination("splash")
+    object LoginScreen : Destination("login")
+    object FunctionalDataScreen : Destination("functionalData/{email}") {
+        fun createRoute(email: String) = "functionalData/$email"
+    }
+    object DashboardScreen : Destination("dashboard/{email}") {
+        fun createRoute(email: String) = "dashboard/$email"
+    }
+    object EstoqueScreen : Destination("estoque")
+    object AlertasScreen : Destination("alertas")
+    object LogisticaScreen : Destination("logistica")
+    object PrevisaoIAScreen : Destination("previsaoIA")
+    object PedidoScreen : Destination("pedido")
+    object CreditsScreen : Destination("credits")
+
+    // Mantidas para compatibilidade com código legado (não usadas no fluxo principal)
     object InitialScreen : Destination("initial")
     object SignupScreen : Destination("signup")
-
-    //object ProfileScreen: Destination("profile")
     object ProfileScreen : Destination("profile/{email}") {
-        fun createRoute(email: String): String {
-            return "profile/$email"
-        }
+        fun createRoute(email: String) = "profile/$email"
     }
-
     object HomeScreen : Destination("home/{email}") {
-        fun createRoute(email: String): String {
-            return "home/$email"
-        }
+        fun createRoute(email: String) = "home/$email"
     }
-
-    object LoginScreen : Destination("login")
-    object AddRecipeScreen : Destination("addRecipeSreen")
-
-    object CategoryRecipeScreen : Destination(
-        route = "categoryRecipes/{id}"
-    ) {
-        fun createRoute(id: Int): String {
-            return "categoryRecipes/$id"
-        }
+    object AddRecipeScreen : Destination("addRecipeScreen")
+    object CategoryRecipeScreen : Destination("categoryRecipes/{id}") {
+        fun createRoute(id: Int) = "categoryRecipes/$id"
     }
-
-    // Rota para a tela de cadastro de ingredientes da receita
-    // passando o id e nome da receita como argumentos da rota
-    object AddRecipeIngredientsScreen : Destination(
-        route = "addIngredients/{recipeId}/{recipeName}"
-    ) {
-        fun createRoute(
-            recipeId: Int,
-            recipeName: String
-        ): String {
-            return "addIngredients/$recipeId/$recipeName"
-        }
+    object AddRecipeIngredientsScreen : Destination("addIngredients/{recipeId}/{recipeName}") {
+        fun createRoute(recipeId: Int, recipeName: String) = "addIngredients/$recipeId/$recipeName"
     }
-
-    // Rota para a tela de cadastro de modos de preparo da receita
-    // passando o id e nome da receita como argumentos da rota
-    object AddPreparationMethodsScreen : Destination(
-        route = "addPreparationMethods/{recipeId}/{recipeName}"
-    ) {
-        fun createRoute(
-            recipeId: Int,
-            recipeName: String
-        ): String {
-            return "addPreparationMethods/$recipeId/$recipeName"
-        }
+    object AddPreparationMethodsScreen : Destination("addPreparationMethods/{recipeId}/{recipeName}") {
+        fun createRoute(recipeId: Int, recipeName: String) = "addPreparationMethods/$recipeId/$recipeName"
     }
-
-    // Rota para a tela de cadastro imagem da receita
-    // passando o id da receita como argumento da rota
-    object AddRecipePhoto : Destination(
-        route = "addRecipePhoto/{recipeId}"
-    ) {
-        fun createRoute(
-            recipeId: Int
-        ): String {
-            return "addRecipePhoto/$recipeId"
-        }
+    object AddRecipePhoto : Destination("addRecipePhoto/{recipeId}") {
+        fun createRoute(recipeId: Int) = "addRecipePhoto/$recipeId"
     }
-
 }

@@ -2,6 +2,7 @@ package br.com.fiap.recipesfiap.factory
 
 import br.com.fiap.recipesfiap.service.CategoryService
 import br.com.fiap.recipesfiap.service.RecipeService
+import br.com.fiap.recipesfiap.service.StockService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -16,14 +17,15 @@ object RetrofitClient {
             .build()
     }
 
-    // Obter uma instância, gerada pelo Retrofit, de um objeto CategoryService
     fun getCategoryService(): CategoryService {
-        return retrofit.create(CategoryService::class.java);
+        return retrofit.create(CategoryService::class.java)
     }
 
-    // Obter uma instância, gerada pelo Retrofit, de um objeto RecipeService
     fun getRecipeService(): RecipeService {
         return retrofit.create(RecipeService::class.java)
     }
 
+    fun getStockService(): StockService {
+        return retrofit.create(StockService::class.java)
+    }
 }
