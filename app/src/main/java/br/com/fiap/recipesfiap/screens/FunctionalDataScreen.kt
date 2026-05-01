@@ -147,7 +147,7 @@ fun FunctionalDataScreen(navController: NavController, email: String) {
             }
 
             Text(
-                text = "Dados validados o sistema de RH hospitalar via API interna. Matrícula inativa ou sem vínculo será recusada.",
+                text = "Dados validados com o sistema de RH hospitalar via API interna. Matrícula inativa ou sem vínculo será recusada.",
                 fontSize = 11.sp,
                 color = MediSubtext,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
